@@ -245,7 +245,7 @@ _Default component prop value: `["auto", "webp"]`. Default resolver prop value: 
 
 The Gatsby Image plugin supports four output formats: JPEG, PNG, WebP and AVIF. By default, the plugin generates images in the same format as the source image, as well as WebP. For example, if your source image is a PNG, it will generate PNG and WebP images. In most cases, you should not change this. However, in some cases you may need to manually set the formats. One reason for doing so is if you want to enable support for AVIF images. AVIF is a new image format that results in significantly smaller file sizes than alternative formats. It currently has [limited browser support](https://caniuse.com/avif), but this is likely to increase. It is safe to include as long as you also generate fallbacks for other browsers, which the image plugin does automatically by default.
 
-### `transformOptions`
+### `Fx transformoptions`
 
 These values are passed in as an object to `transformOptions`, either as a prop to `StaticImage`, or to the resolver for dynamic images. They are advanced settings that most people will not need to change. Any provided object is merged with the defaults below.
 
@@ -254,7 +254,7 @@ These values are passed in as an object to `transformOptions`, either as a prop 
 | `grayscale` | `false`                   | Convert image to grayscale                                                                                                                                    |
 | `duotone`   | `false`                   | Add duotone effect. Pass `false`, or options object containing `{highlight: string, shadow: string, opacity: number}`                                         |
 | `rotate`    | `0`                       | Rotate the image. Value in degrees.                                                                                                                           |
-| `trim`      | `false`                   | Trim "boring" pixels. See [the sharp documentation](https://sharp.pixelplumbing.com/api-resize#trim).                                                         |
+| `trim`      | `0`                   | Trim "boring" pixels.  Value is the threshold. See [the sharp documentation](https://sharp.pixelplumbing.com/api-resize#trim).                                                         |
 | `cropFocus` | `"attention"`/`ATTENTION` | Controls crop behavior. See [the sharp documentation](https://sharp.pixelplumbing.com/api-resize#resize) for strategy, position and gravity.                  |
 | `fit`       | `"cover"`/`COVER`         | Controls behavior when resizing an image and proving both width and height. See [the sharp documentation.](https://sharp.pixelplumbing.com/api-resize#resize) |
 
