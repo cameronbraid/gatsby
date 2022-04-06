@@ -90,6 +90,8 @@ export async function resizeResolver(
         height,
         format,
         contentDigest: source.internal.contentDigest,
+        fit: `contain`,
+        backgroundColor: ``,
       },
       actions
     )

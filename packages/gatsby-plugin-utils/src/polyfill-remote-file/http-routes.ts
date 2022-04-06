@@ -6,6 +6,7 @@ import { getFileExtensionFromMimeType } from "./utils/mime-type-helpers"
 import { transformImage } from "./transform-images"
 
 import type { Application } from "express"
+import { ImageFit } from "./types"
 
 export function polyfillImageServiceDevRoutes(app: Application): void {
   if (hasFeature(`image-cdn`)) {
@@ -38,7 +39,7 @@ export function addImageRoutes(app: Application): Application {
     const { params, url, filename } = req.params
 
     const searchParams = new URLSearchParams(
-      Buffer.from(params, `base64`).toString()
+      Buffer.from(params, `base64url`).toString()
     )
 
     const resizeParams: {
@@ -46,11 +47,15 @@ export function addImageRoutes(app: Application): Application {
       height: number
       quality: number
       format: string
+      fit: ImageFit
+      backgroundColor: string
     } = {
       width: 0,
       height: 0,
       quality: 75,
       format: ``,
+      fit: `cover`,
+      backgroundColor: ``,
     }
 
     for (const [key, value] of searchParams) {
@@ -71,16 +76,25 @@ export function addImageRoutes(app: Application): Application {
           resizeParams.quality = Number(value)
           break
         }
+        case `fit`: {
+          resizeParams.fit = value as ImageFit
+          break
+        }
+        case `bg`: {
+          resizeParams.backgroundColor = value
+          break
+        }
       }
     }
 
-    const remoteUrl = Buffer.from(url, `base64`).toString()
+    const remoteUrl = Buffer.from(url, `base64url`).toString()
     const outputDir = path.join(
       global.__GATSBY?.root || process.cwd(),
       `public`,
       `_gatsby`,
       `_image`,
-      url
+      url,
+      params
     )
 
     const filePath = await transformImage({
