@@ -4,6 +4,7 @@ import { fetchRemoteFile } from "gatsby-core-utils/fetch-remote-file"
 import { createContentDigest } from "gatsby-core-utils/create-content-digest"
 import getSharpInstance from "gatsby-sharp"
 import { getCache } from "./utils/cache"
+import { ImageFit } from "./types"
 
 export interface IResizeArgs {
   width: number
@@ -11,6 +12,8 @@ export interface IResizeArgs {
   format: string
   outputPath?: string
   quality: number
+  backgroundColor?: string
+  fit: ImageFit
 }
 
 // Lots of work to get the sharp instance
@@ -99,7 +102,15 @@ export async function transformImage({
 
 async function resizeImageWithSharp(
   pipeline: Pipeline | Buffer,
-  { width, height, format, outputPath, quality }: IResizeArgs
+  {
+    width,
+    height,
+    format,
+    outputPath,
+    quality,
+    fit,
+    backgroundColor,
+  }: IResizeArgs
 ): Promise<Buffer | void> {
   if (pipeline instanceof Buffer) {
     if (!outputPath) {
@@ -110,9 +121,18 @@ async function resizeImageWithSharp(
   }
 
   const resizedImage = pipeline
-    .resize(width, height, {})
+    .resize({
+      width,
+      height,
+      fit,
+      background: backgroundColor || undefined,
+    })
     .jpeg({ quality })
-    .png({ quality })
+    .png({
+      quality,
+      // compressionLevel: options.pngCompressionLevel,
+      adaptiveFiltering: false,
+    })
     .webp({ quality })
     .avif({ quality })
     .toFormat(

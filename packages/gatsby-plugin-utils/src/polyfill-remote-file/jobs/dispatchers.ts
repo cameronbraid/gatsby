@@ -69,6 +69,7 @@ export function dispatchLocalImageServiceJob(
     fit,
     contentDigest,
     quality,
+    backgroundColor,
   }: {
     url: string
     extension: string
@@ -79,6 +80,7 @@ export function dispatchLocalImageServiceJob(
     fit: ImageFit
     contentDigest: string
     quality: number
+    backgroundColor: string
   },
   actions: Actions
 ): void {
@@ -96,7 +98,14 @@ export function dispatchLocalImageServiceJob(
       outputDir: path.join(
         global.__GATSBY?.root || process.cwd(),
         ...publicUrl.filter(Boolean),
-        generateImageArgs({ width, height, format, quality })
+        generateImageArgs({
+          width,
+          height,
+          format,
+          quality,
+          fit,
+          backgroundColor,
+        })
       ),
       args: {
         url,

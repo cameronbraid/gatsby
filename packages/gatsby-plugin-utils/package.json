@@ -1,17 +1,11 @@
 {
   "name": "gatsby-plugin-utils",
-  "version": "3.5.1",
+  "version": "3.5.1-dn-4",
   "description": "Gatsby utils that help creating plugins",
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./*": "./dist/*.js",
-    "./dist/*": "./dist/*.js",
-    "./dist/polyfill-remote-file": null,
-    "./dist/utils": null,
-    "./polyfill-remote-file": "./dist/polyfill-remote-file/index.js",
-    "./dist/polyfill-remote-file/jobs/gatsby-worker.js": "./dist/polyfill-remote-file/jobs/gatsby-worker.js",
-    "./dist/polyfill-remote-file/graphql/*": "./dist/polyfill-remote-file/graphql/*.js"
+    "./*": "./dist/*.js"
   },
   "typesVersions": {
     "*": {

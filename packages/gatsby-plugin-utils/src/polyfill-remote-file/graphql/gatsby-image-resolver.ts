@@ -180,6 +180,7 @@ export async function gatsbyImageResolver(
             fit: args.fit as ImageFit,
             contentDigest: source.internal.contentDigest,
             quality: args.quality as number,
+            backgroundColor: args.backgroundColor as string,
           },
           actions
         )
@@ -191,6 +192,8 @@ export async function gatsbyImageResolver(
         format,
         cropFocus: args.cropFocus,
         quality: args.quality as number,
+        backgroundColor: args.backgroundColor,
+        fit: args.fit as ImageFit,
       })}/${encodeURIComponent(
         path.basename(source.filename, path.extname(source.filename))
       )}.${format}`
