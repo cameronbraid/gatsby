@@ -1,6 +1,6 @@
 {
   "name": "gatsby-plugin-utils",
-  "version": "3.5.1-dn-5",
+  "version": "3.5.1-dn-6",
   "description": "Gatsby utils that help creating plugins",
   "main": "dist/index.js",
   "exports": {
