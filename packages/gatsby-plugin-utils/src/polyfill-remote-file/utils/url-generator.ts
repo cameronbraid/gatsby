@@ -1,4 +1,4 @@
-import { isImage } from "../types"
+import { ImageFit, isImage } from "../types"
 import type { ImageCropFocus, WidthOrHeight } from "../types"
 
 export function generatePublicUrl(
@@ -11,7 +11,7 @@ export function generatePublicUrl(
   },
   checkMimeType: boolean = true
 ): string {
-  const remoteUrl = Buffer.from(url).toString(`base64`)
+  const remoteUrl = Buffer.from(url).toString(`base64url`)
 
   let publicUrl =
     checkMimeType && isImage({ mimeType })
@@ -28,10 +28,14 @@ export function generateImageArgs({
   format,
   cropFocus,
   quality,
+  backgroundColor,
+  fit,
 }: WidthOrHeight & {
   format: string
   cropFocus?: ImageCropFocus | Array<ImageCropFocus>
   quality: number
+  backgroundColor?: string
+  fit: ImageFit
 }): string {
   const args: Array<string> = []
   if (width) {
@@ -40,14 +44,22 @@ export function generateImageArgs({
   if (height) {
     args.push(`h=${height}`)
   }
+  if (fit) {
+    args.push(`fit=${fit}`)
+  }
   if (cropFocus) {
-    args.push(`fit=crop`)
+    if (!fit) {
+      args.push(`fit=crop`)
+    }
     args.push(
       `crop=${Array.isArray(cropFocus) ? cropFocus.join(`,`) : cropFocus}`
     )
   }
   args.push(`fm=${format}`)
   args.push(`q=${quality}`)
+  if (backgroundColor) {
+    args.push(`bg=${backgroundColor}`)
+  }
 
-  return Buffer.from(args.join(`&`)).toString(`base64`)
+  return Buffer.from(args.join(`&`)).toString(`base64url`)
 }
