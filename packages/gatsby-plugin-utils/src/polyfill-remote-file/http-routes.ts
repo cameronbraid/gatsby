@@ -7,6 +7,7 @@ import { getFileExtensionFromMimeType } from "./utils/mime-type-helpers"
 import { transformImage } from "./transform-images"
 
 import type { Application } from "express"
+import { ImageFit } from "./types"
 
 export function polyfillImageServiceDevRoutes(app: Application): void {
   if (hasFeature(`image-cdn`)) {
@@ -47,11 +48,15 @@ export function addImageRoutes(app: Application): Application {
       height: number
       quality: number
       format: string
+      fit: ImageFit
+      backgroundColor: string
     } = {
       width: 0,
       height: 0,
       quality: 75,
       format: ``,
+      fit: `cover`,
+      backgroundColor: ``,
     }
 
     for (const [key, value] of searchParams) {
@@ -70,6 +75,14 @@ export function addImageRoutes(app: Application): Application {
         }
         case `q`: {
           resizeParams.quality = Number(value)
+          break
+        }
+        case `fit`: {
+          resizeParams.fit = value as ImageFit
+          break
+        }
+        case `bg`: {
+          resizeParams.backgroundColor = value
           break
         }
       }

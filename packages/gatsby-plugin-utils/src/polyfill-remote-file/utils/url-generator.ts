@@ -1,7 +1,7 @@
 import { basename, extname } from "path"
 import { URL } from "url"
 import { createContentDigest } from "gatsby-core-utils/create-content-digest"
-import { isImage } from "../types"
+import { ImageFit, isImage } from "../types"
 import type { ImageCropFocus, WidthOrHeight } from "../types"
 
 // this is an arbitrary origin that we use #branding so we can construct a full url for the URL constructor
@@ -76,10 +76,14 @@ function generateImageArgs({
   format,
   cropFocus,
   quality,
+  backgroundColor,
+  fit,
 }: WidthOrHeight & {
   format: string
   cropFocus?: ImageCropFocus | Array<ImageCropFocus>
   quality: number
+  backgroundColor?: string
+  fit: ImageFit
 }): string {
   const args: Array<string> = []
   if (width) {
@@ -88,14 +92,22 @@ function generateImageArgs({
   if (height) {
     args.push(`h=${height}`)
   }
+  if (fit) {
+    args.push(`fit=${fit}`)
+  }
   if (cropFocus) {
-    args.push(`fit=crop`)
+    if (!fit) {
+      args.push(`fit=crop`)
+    }
     args.push(
       `crop=${Array.isArray(cropFocus) ? cropFocus.join(`,`) : cropFocus}`
     )
   }
   args.push(`fm=${format}`)
   args.push(`q=${quality}`)
+  if (backgroundColor) {
+    args.push(`bg=${backgroundColor}`)
+  }
 
   return args.join(`&`)
 }

@@ -7,7 +7,7 @@ import {
   shouldDispatch,
 } from "../jobs/dispatchers"
 import { generatePlaceholder, PlaceholderType } from "../placeholder-handler"
-import { ImageCropFocus, isImage } from "../types"
+import { ImageCropFocus, ImageFit, isImage } from "../types"
 import { validateAndNormalizeFormats, calculateImageDimensions } from "./utils"
 
 import type { Actions } from "gatsby"
@@ -185,6 +185,8 @@ export async function gatsbyImageResolver(
             format,
             cropFocus: args.cropFocus,
             quality: args.quality as number,
+            backgroundColor: args.backgroundColor as string,
+            fit: args.fit as ImageFit,
           },
           actions
         )
@@ -196,6 +198,8 @@ export async function gatsbyImageResolver(
         format,
         cropFocus: args.cropFocus,
         quality: args.quality as number,
+        backgroundColor: args.backgroundColor,
+        fit: args.fit as ImageFit,
       })
 
       if (!fallbackSrc) {

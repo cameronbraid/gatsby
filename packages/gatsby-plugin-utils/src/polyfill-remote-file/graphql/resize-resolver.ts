@@ -91,6 +91,9 @@ export async function resizeResolver(
         width,
         height,
         format,
+        fit: args.fit ?? `contain`,
+        backgroundColor: ``,
+        quality: args.quality,
       },
       actions
     )
