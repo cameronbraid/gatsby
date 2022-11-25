@@ -11,6 +11,7 @@ type ImageArgs = Parameters<typeof generateImageUrl>[1]
 
 describe(`url-generator`, () => {
   describe(`URL encryption`, () => {
+    // TODO (Cameron Braid) could rename this to decryptImageCdnValue but I want to reduce merge issues when I have to rebase
     function decryptImageCdnUrl(
       key: string,
       iv: string,
@@ -21,7 +22,12 @@ describe(`url-generator`, () => {
         Buffer.from(key, `hex`),
         Buffer.from(iv, `hex`)
       )
-      const decrypted = decipher.update(Buffer.from(encryptedUrl, `hex`))
+      const decrypted = decipher.update(
+        Buffer.from(
+          encryptedUrl,
+          (process.env.IMAGE_CDN_ENCRYPTION_ENCODING as BufferEncoding) || `hex`
+        )
+      )
       const clearText = Buffer.concat([decrypted, decipher.final()]).toString()
 
       const [randomPadding, ...url] = clearText.split(`:`)
@@ -47,6 +53,7 @@ describe(`url-generator`, () => {
       format: `webp`,
       quality: 80,
     }
+    const resizeArgsParam = `w=100&h=100&fm=webp&q=80`
 
     const generateEncryptedUrlForType = (type: string): string => {
       const url = {
@@ -122,6 +129,53 @@ describe(`url-generator`, () => {
 
         delete process.env.IMAGE_CDN_ENCRYPTION_SECRET_KEY
         delete process.env.IMAGE_CDN_ENCRYPTION_IV
+      }
+    )
+
+    it.each([`hex`, `base64`, `base64url`])(
+      `should return img encrypted args if encryption is enabled using %s encoding`,
+      encoding => {
+        const type = `image`
+        const key = crypto.randomBytes(32).toString(`hex`)
+        const iv = crypto.randomBytes(16).toString(`hex`)
+
+        process.env.IMAGE_CDN_ENCRYPTION_SECRET_KEY = key
+        process.env.IMAGE_CDN_ENCRYPTION_IV = iv
+        process.env.IMAGE_CDN_ENCRYPTION_ARGS = `true`
+        process.env.IMAGE_CDN_ENCRYPTION_ENCODING = encoding
+
+        const urlWithEncryptedEuParam = generateEncryptedUrlForType(type)
+
+        console.log(
+          encoding,
+          urlWithEncryptedEuParam.length,
+          urlWithEncryptedEuParam
+        )
+        expect(urlWithEncryptedEuParam).not.toContain(
+          encodeURIComponent(getUnencryptedUrlForType(type))
+        )
+
+        const { ea: encryptedArgsParam, a: argsParam } = url.parse(
+          urlWithEncryptedEuParam,
+          true
+        ).query
+
+        expect(argsParam).toBeFalsy()
+        expect(encryptedArgsParam).toBeTruthy()
+
+        const { decryptedUrl, randomPadding } = decryptImageCdnUrl(
+          key,
+          iv,
+          encryptedArgsParam as string
+        )
+
+        expect(decryptedUrl).toEqual(resizeArgsParam)
+        expect(randomPadding.length).toBeGreaterThan(0)
+
+        delete process.env.IMAGE_CDN_ENCRYPTION_SECRET_KEY
+        delete process.env.IMAGE_CDN_ENCRYPTION_IV
+        delete process.env.IMAGE_CDN_ENCRYPTION_ARGS
+        delete process.env.IMAGE_CDN_ENCRYPTION_ENCODING
       }
     )
   })

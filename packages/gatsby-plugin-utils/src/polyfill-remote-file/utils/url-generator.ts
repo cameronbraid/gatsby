@@ -12,10 +12,11 @@ export enum ImageCDNUrlKeys {
   URL = `u`,
   ENCRYPTED_URL = `eu`,
   ARGS = `a`,
+  ENCRYPTED_ARGS = `ea`,
   CONTENT_DIGEST = `cd`,
 }
 
-function encryptImageCdnUrl(
+function encryptImageCdnValue(
   secretKey: string,
   iv: string,
   urlToEncrypt: string
@@ -33,7 +34,9 @@ function encryptImageCdnUrl(
   const encrypted = cipher.update(toEncrypt)
   const finalBuffer = Buffer.concat([encrypted, cipher.final()])
 
-  return finalBuffer.toString(`hex`)
+  return finalBuffer.toString(
+    process.env.IMAGE_CDN_ENCRYPTION_ENCODING || `hex`
+  )
 }
 
 function appendUrlParamToSearchParams(
@@ -48,7 +51,25 @@ function appendUrlParamToSearchParams(
     ? ImageCDNUrlKeys.ENCRYPTED_URL
     : ImageCDNUrlKeys.URL
 
-  const finalUrl = shouldEncrypt ? encryptImageCdnUrl(key, iv, url) : url
+  const finalUrl = shouldEncrypt ? encryptImageCdnValue(key, iv, url) : url
+
+  searchParams.append(paramName, finalUrl)
+}
+
+function appendArgsParamToSearchParams(
+  searchParams: URLSearchParams,
+  value: string
+): void {
+  const key = process.env.IMAGE_CDN_ENCRYPTION_SECRET_KEY || ``
+  const iv = process.env.IMAGE_CDN_ENCRYPTION_IV || ``
+  const shouldEncryptArgs = process.env.IMAGE_CDN_ENCRYPTION_ARGS === `true`
+  const shouldEncrypt = shouldEncryptArgs && !!(iv && key)
+
+  const paramName = shouldEncrypt
+    ? ImageCDNUrlKeys.ENCRYPTED_ARGS
+    : ImageCDNUrlKeys.ARGS
+
+  const finalUrl = shouldEncrypt ? encryptImageCdnValue(key, iv, value) : value
 
   searchParams.append(paramName, finalUrl)
 }
@@ -93,7 +114,7 @@ export function generateImageUrl(
   )
 
   appendUrlParamToSearchParams(parsedURL.searchParams, source.url)
-  parsedURL.searchParams.append(ImageCDNUrlKeys.ARGS, queryStr)
+  appendArgsParamToSearchParams(parsedURL.searchParams, queryStr)
   parsedURL.searchParams.append(
     ImageCDNUrlKeys.CONTENT_DIGEST,
     source.internal.contentDigest
