@@ -110,10 +110,12 @@ describe(`url-generator`, () => {
           encodeURIComponent(getUnencryptedUrlForType(type))
         )
 
-        const { eu: encryptedUrlParam, u: urlParam } = url.parse(
-          urlWithEncryptedEuParam,
-          true
-        ).query
+        const {
+          eu: encryptedUrlParam,
+          u: urlParam,
+          a: argsParam,
+          ea: encryptedArgsParam,
+        } = url.parse(urlWithEncryptedEuParam, true).query
 
         expect(urlParam).toBeFalsy()
         expect(encryptedUrlParam).toBeTruthy()
@@ -126,6 +128,12 @@ describe(`url-generator`, () => {
 
         expect(decryptedUrl).toEqual(getUnencryptedUrlForType(type))
         expect(randomPadding.length).toBeGreaterThan(0)
+
+        if (type == `image`) {
+          // also check that the image args aren't encrypted
+          expect(argsParam).toBeTruthy()
+          expect(encryptedArgsParam).toBeFalsy()
+        }
 
         delete process.env.IMAGE_CDN_ENCRYPTION_SECRET_KEY
         delete process.env.IMAGE_CDN_ENCRYPTION_IV
@@ -146,11 +154,6 @@ describe(`url-generator`, () => {
 
         const urlWithEncryptedEuParam = generateEncryptedUrlForType(type)
 
-        console.log(
-          encoding,
-          urlWithEncryptedEuParam.length,
-          urlWithEncryptedEuParam
-        )
         expect(urlWithEncryptedEuParam).not.toContain(
           encodeURIComponent(getUnencryptedUrlForType(type))
         )
