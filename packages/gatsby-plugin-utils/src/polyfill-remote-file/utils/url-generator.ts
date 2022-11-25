@@ -74,7 +74,8 @@ export function generateFileUrl({
   return `${parsedURL.pathname}${parsedURL.search}`
 }
 
-export function generateImageUrl(
+
+export type GenerateImageUrlFunction = (
   source: {
     url: string
     mimeType: string
@@ -82,7 +83,31 @@ export function generateImageUrl(
     internal: { contentDigest: string }
   },
   imageArgs: Parameters<typeof generateImageArgs>[0]
-): string {
+) => string
+  
+
+export const generateImageUrl : GenerateImageUrlFunction = (
+  source: {
+    url: string
+    mimeType: string
+    filename: string
+    internal: { contentDigest: string }
+  },
+  imageArgs: Parameters<typeof generateImageArgs>[0]
+): string => {
+  return targetGenerateImageUrlFunction(source, imageArgs)
+}
+
+export const gatsbyCloudGenerateImageUrl : GenerateImageUrlFunction = (
+    source: {
+      url: string
+      mimeType: string
+      filename: string
+      internal: { contentDigest: string }
+    },
+    imageArgs: Parameters<typeof generateImageArgs>[0]
+  ): string => {
+  
   const filenameWithoutExt = basename(source.filename, extname(source.filename))
   const queryStr = generateImageArgs(imageArgs)
 
@@ -100,6 +125,12 @@ export function generateImageUrl(
   )
 
   return `${parsedURL.pathname}${parsedURL.search}`
+}
+
+let targetGenerateImageUrlFunction : GenerateImageUrlFunction = gatsbyCloudGenerateImageUrl
+
+export function setGenerateImageUrlFunction(f:GenerateImageUrlFunction) {
+  targetGenerateImageUrlFunction = f
 }
 
 function generatePublicUrl({
