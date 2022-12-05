@@ -202,6 +202,8 @@ export async function gatsbyImageResolver(
         format,
         cropFocus: args.cropFocus,
         quality: args.quality as number,
+        fit: args.fit,
+        backgroundColor: backgroundColor,
       })
 
       if (!fallbackSrc) {

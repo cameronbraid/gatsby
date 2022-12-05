@@ -2,7 +2,7 @@ import crypto from "crypto"
 import { basename, extname } from "path"
 import { URL } from "url"
 import { createContentDigest } from "gatsby-core-utils/create-content-digest"
-import { isImage } from "../types"
+import { ImageFit, isImage } from "../types"
 import type { ImageCropFocus, WidthOrHeight } from "../types"
 
 // this is an arbitrary origin that we use #branding so we can construct a full url for the URL constructor
@@ -155,10 +155,14 @@ function generateImageArgs({
   format,
   cropFocus,
   quality,
+  fit,
+  backgroundColor,
 }: WidthOrHeight & {
   format: string
   cropFocus?: ImageCropFocus | Array<ImageCropFocus>
-  quality: number
+  quality: number,
+  fit ?: ImageFit,
+  backgroundColor ?: string
 }): string {
   const args: Array<string> = []
   if (width) {
@@ -175,6 +179,6 @@ function generateImageArgs({
   }
   args.push(`fm=${format}`)
   args.push(`q=${quality}`)
-
+  
   return args.join(`&`)
 }
